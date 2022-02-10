@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/eugenio-garcia/Go-Dispatch-Bootcamp/errors"
 	"github.com/eugenio-garcia/Go-Dispatch-Bootcamp/model"
 )
 
@@ -98,4 +99,17 @@ func (ps *PokemonService) GetAllPokemons() (model.Pokemons, error) {
 	}
 
 	return pokemons, nil
+}
+
+func (ps *PokemonService) GetPokemonById(id int) (*model.Pokemon, error) {
+	log.Printf("In service GetPokemonById")
+
+	// find the employee in the data
+	pokemon, ok := ps.data[id]
+	if !ok {
+		//return nil, errz.ErrNotFound
+		return nil, errors.ErrNotFound
+	}
+
+	return &pokemon, nil
 }

@@ -8,7 +8,7 @@ import (
 
 type PokemonService interface {
 	GetAllPokemons() (model.Pokemons, error)
-	// GetPokemonById(id int) (*model.Pokemon, error)
+	GetPokemonById(id int) (*model.Pokemon, error)
 	// GetPokemonByName(name string) (*model.Pokemon, error)
 }
 
@@ -35,4 +35,19 @@ func (pu *PokemonUsecase) GetAllPokemons() (model.Pokemons, error) {
 	//
 
 	return pokemons, nil
+}
+
+func (pu *PokemonUsecase) GetPokemonById(id int) (*model.Pokemon, error) {
+	log.Printf("In usecase GetPokemonById")
+	pokemon, err := pu.service.GetPokemonById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	//redis to update cache
+
+	//
+
+	return pokemon, nil
 }
