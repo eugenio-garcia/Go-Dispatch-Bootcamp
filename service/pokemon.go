@@ -3,7 +3,9 @@ package service
 import (
 	"encoding/csv"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -118,4 +120,28 @@ func (ps *PokemonService) GetPokemonById(id int) (*model.Pokemon, error) {
 	}
 
 	return &pokemon, nil
+}
+
+func (ps *PokemonService) LoadPokemonToCSV() (bool, error) {
+	result := true
+
+	resp, err := http.Get("https://pokeapi.co/api/v2/pokemon?limit=100&offset=200")
+	if err != nil {
+		log.Fatalln(err)
+		return false, err
+	}
+	//We Read the response body on the line below.
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+		return false, err
+	}
+	//Convert the body to type string
+	sb := string(body)
+	log.Printf(sb)
+
+	//unmarshal json
+	//save it on csv
+
+	return result, nil
 }

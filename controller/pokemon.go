@@ -15,6 +15,7 @@ type usecase interface {
 	GetAllPokemons() (model.Pokemons, error)
 	GetPokemonById(id int) (*model.Pokemon, error)
 	// GetPokemonByName(name string) (*model.Pokemon, error)
+	LoadPokemonToCSV() (bool, error)
 }
 
 type pokemonController struct {
@@ -82,6 +83,31 @@ func (pc pokemonController) GetPokemonById(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusInternalServerError)
 
 		fmt.Fprintf(w, "error marshalling pokemons %v\n", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+func (pc pokemonController) LoadPokemonToCSV(w http.ResponseWriter, r *http.Request) {
+	log.Printf("In controller LoadPokemonToCSV")
+	loaded, err := pc.usecase.LoadPokemonToCSV()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+
+		fmt.Fprintf(w, "getting pokemons loaded error: %v\n", err)
+		return
+	}
+
+	jsonData, err := json.Marshal(loaded)
+
+	if err != nil {
+		log.Println("error marshalling loaded")
+		w.WriteHeader(http.StatusInternalServerError)
+
+		fmt.Fprintf(w, "error marshalling loaded %v\n", err)
 		return
 	}
 

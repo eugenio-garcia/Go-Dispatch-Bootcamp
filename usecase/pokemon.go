@@ -10,6 +10,7 @@ type PokemonService interface {
 	GetAllPokemons() (model.Pokemons, error)
 	GetPokemonById(id int) (*model.Pokemon, error)
 	// GetPokemonByName(name string) (*model.Pokemon, error)
+	LoadPokemonToCSV() (bool, error)
 }
 
 type PokemonUsecase struct {
@@ -50,4 +51,15 @@ func (pu *PokemonUsecase) GetPokemonById(id int) (*model.Pokemon, error) {
 	//
 
 	return pokemon, nil
+}
+
+func (pu *PokemonUsecase) LoadPokemonToCSV() (bool, error) {
+	log.Printf("In usecase LoadPokemonToCSV")
+	loaded, err := pu.service.LoadPokemonToCSV()
+
+	if err != nil {
+		return loaded, err
+	}
+
+	return loaded, nil
 }
