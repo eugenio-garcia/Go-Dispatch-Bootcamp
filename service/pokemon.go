@@ -26,7 +26,7 @@ type PokemonService struct {
 
 func New(pm PokemonMap) *PokemonService {
 	if pm == nil {
-		pm = OpenCSV()
+		pm = openCSV()
 	}
 
 	return &PokemonService{
@@ -46,7 +46,12 @@ func createPokemonMap(data [][]string) map[int]model.Pokemon {
 			var rec PokemonRecord
 			for j, field := range line {
 				if j == 0 {
-					rec.ID, _ = strconv.Atoi(field) //Error?
+					var id int
+					id, err := strconv.Atoi(field)
+					if err != nil {
+						log.Fatalf("converting Id into an int: %v", err)
+					}
+					rec.ID = id
 				} else if j == 1 {
 					rec.Name = field
 				}
@@ -61,11 +66,12 @@ func createPokemonMap(data [][]string) map[int]model.Pokemon {
 	return pokemonList
 }
 
-func OpenCSV() map[int]model.Pokemon {
+func openCSV() map[int]model.Pokemon {
 	// open file
 	f, err := os.Open("data/pokemons.csv")
 	if err != nil {
 		log.Fatal(err)
+		return nil
 	}
 
 	// remember to close the file at the end of the program
@@ -76,6 +82,7 @@ func OpenCSV() map[int]model.Pokemon {
 	data, err := csvReader.ReadAll()
 	if err != nil {
 		log.Fatal(err)
+		return nil
 	}
 
 	// convert records to array of structs
@@ -107,7 +114,6 @@ func (ps *PokemonService) GetPokemonById(id int) (*model.Pokemon, error) {
 	// find the employee in the data
 	pokemon, ok := ps.data[id]
 	if !ok {
-		//return nil, errz.ErrNotFound
 		return nil, errors.ErrNotFound
 	}
 
