@@ -1,12 +1,15 @@
 package service
 
 import (
+	"bytes"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 
 	"github.com/eugenio-garcia/Go-Dispatch-Bootcamp/errors"
@@ -15,7 +18,7 @@ import (
 
 type PokemonMap map[int]model.Pokemon
 
-var pokemonsOrder []int = []int{1, 2, 3}
+// var pokemonsOrder []int = []int{1, 2, 3}
 
 var db PokemonMap = map[int]model.Pokemon{
 	1: {ID: 1, Name: "Pikachu"},
@@ -24,6 +27,16 @@ var db PokemonMap = map[int]model.Pokemon{
 
 type PokemonService struct {
 	data PokemonMap
+}
+
+type PokemonDataAPI struct {
+	Count   int      `json::"count"`
+	Results []Result `json:"results"`
+}
+
+type Result struct {
+	Name string `json:"name"`
+	Url  string `json:"url"`
 }
 
 func New(pm PokemonMap) *PokemonService {
@@ -96,6 +109,28 @@ func openCSV() map[int]model.Pokemon {
 
 }
 
+func writeCSV(data []Result) {
+	csvFile, err := os.Create("data/pokemons.csv")
+
+	if err != nil {
+		log.Fatalf("failed creating file: %s", err)
+	}
+
+	csvwriter := csv.NewWriter(csvFile)
+	_ = csvwriter.Write([]string{"ID", "NAME"})
+
+	for _, empRow := range data {
+		url := empRow.Url
+		var rgx = regexp.MustCompile(`(\/)((\d)+)(\/)`)
+		rs := rgx.FindStringSubmatch(url)
+		id := rs[2]
+		row := []string{id, empRow.Name}
+		_ = csvwriter.Write(row)
+	}
+	csvwriter.Flush()
+	csvFile.Close()
+}
+
 func (ps *PokemonService) GetAllPokemons() (model.Pokemons, error) {
 	log.Printf("In service GetAllPokemons")
 	//some logic happens here
@@ -103,8 +138,8 @@ func (ps *PokemonService) GetAllPokemons() (model.Pokemons, error) {
 
 	pokemons := make(model.Pokemons, 0, len(ps.data))
 
-	for _, id := range pokemonsOrder {
-		pokemons = append(pokemons, ps.data[id])
+	for _, id := range ps.data {
+		pokemons = append(pokemons, id)
 	}
 
 	return pokemons, nil
@@ -131,17 +166,31 @@ func (ps *PokemonService) LoadPokemonToCSV() (bool, error) {
 		return false, err
 	}
 	//We Read the response body on the line below.
-	body, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
 		return false, err
 	}
+	body := bytes.TrimPrefix(bodyBytes, []byte("\xef\xbb\xbf"))
+
 	//Convert the body to type string
 	sb := string(body)
 	log.Printf(sb)
 
+	var data = PokemonDataAPI{}
+
 	//unmarshal json
+	err = json.Unmarshal([]byte(body), &data)
+	if err != nil {
+		fmt.Printf("ERROR: %v", err)
+		panic(err)
+
+	}
 	//save it on csv
+	log.Printf("--------")
+	fmt.Printf("Count = %v\n", data.Count)
+	fmt.Printf("Results = %v\n", data.Results)
+	writeCSV(data.Results)
 
 	return result, nil
 }
