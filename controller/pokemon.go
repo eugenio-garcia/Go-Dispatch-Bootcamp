@@ -64,7 +64,8 @@ func (pc pokemonController) GetPokemonById(w http.ResponseWriter, r *http.Reques
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "invalid id: %v", err)
 
-		log.Fatalf("converting id param into an int: %v", err)
+		log.Printf("converting id param into an int: %v", err)
+		return
 	}
 
 	pokemon, err := pc.usecase.GetPokemonById(id)

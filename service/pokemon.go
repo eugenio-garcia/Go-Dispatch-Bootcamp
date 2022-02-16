@@ -39,12 +39,12 @@ type Result struct {
 	Url  string `json:"url"`
 }
 
-func New(pm PokemonMap) *PokemonService {
+func New(pm PokemonMap) PokemonService {
 	if pm == nil {
 		pm = openCSV()
 	}
 
-	return &PokemonService{
+	return PokemonService{
 		data: pm,
 	}
 }
@@ -131,7 +131,7 @@ func writeCSV(data []Result) {
 	csvFile.Close()
 }
 
-func (ps *PokemonService) GetAllPokemons() (model.Pokemons, error) {
+func (ps PokemonService) GetAllPokemons() (model.Pokemons, error) {
 	log.Printf("In service GetAllPokemons")
 	//some logic happens here
 	//we obtain pokemons
@@ -145,7 +145,7 @@ func (ps *PokemonService) GetAllPokemons() (model.Pokemons, error) {
 	return pokemons, nil
 }
 
-func (ps *PokemonService) GetPokemonById(id int) (*model.Pokemon, error) {
+func (ps PokemonService) GetPokemonById(id int) (*model.Pokemon, error) {
 	log.Printf("In service GetPokemonById")
 
 	// find the employee in the data
@@ -157,7 +157,7 @@ func (ps *PokemonService) GetPokemonById(id int) (*model.Pokemon, error) {
 	return &pokemon, nil
 }
 
-func (ps *PokemonService) LoadPokemonToCSV() (bool, error) {
+func (ps PokemonService) LoadPokemonToCSV() (bool, error) {
 	result := true
 
 	resp, err := http.Get("https://pokeapi.co/api/v2/pokemon?limit=100&offset=200")

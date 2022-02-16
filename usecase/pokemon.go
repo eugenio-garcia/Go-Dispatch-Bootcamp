@@ -17,13 +17,13 @@ type PokemonUsecase struct {
 	service PokemonService
 }
 
-func New(s PokemonService) *PokemonUsecase {
-	return &PokemonUsecase{
+func New(s PokemonService) PokemonUsecase {
+	return PokemonUsecase{
 		service: s,
 	}
 }
 
-func (pu *PokemonUsecase) GetAllPokemons() (model.Pokemons, error) {
+func (pu PokemonUsecase) GetAllPokemons() (model.Pokemons, error) {
 	log.Printf("In usecase GetAllPokemons")
 	pokemons, err := pu.service.GetAllPokemons()
 
@@ -38,7 +38,7 @@ func (pu *PokemonUsecase) GetAllPokemons() (model.Pokemons, error) {
 	return pokemons, nil
 }
 
-func (pu *PokemonUsecase) GetPokemonById(id int) (*model.Pokemon, error) {
+func (pu PokemonUsecase) GetPokemonById(id int) (*model.Pokemon, error) {
 	log.Printf("In usecase GetPokemonById")
 	pokemon, err := pu.service.GetPokemonById(id)
 
@@ -53,7 +53,7 @@ func (pu *PokemonUsecase) GetPokemonById(id int) (*model.Pokemon, error) {
 	return pokemon, nil
 }
 
-func (pu *PokemonUsecase) LoadPokemonToCSV() (bool, error) {
+func (pu PokemonUsecase) LoadPokemonToCSV() (bool, error) {
 	log.Printf("In usecase LoadPokemonToCSV")
 	loaded, err := pu.service.LoadPokemonToCSV()
 
