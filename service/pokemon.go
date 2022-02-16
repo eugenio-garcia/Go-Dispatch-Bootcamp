@@ -25,6 +25,13 @@ var db PokemonMap = map[int]model.Pokemon{
 	2: {ID: 2, Name: "Bulbasur"},
 }
 
+type PokemonServiceIfc interface {
+	GetAllPokemons() (model.Pokemons, error)
+	GetPokemonById(id int) (*model.Pokemon, error)
+	// GetPokemonByName(name string) (*model.Pokemon, error)
+	LoadPokemonToCSV() (bool, error)
+}
+
 type PokemonService struct {
 	data PokemonMap
 }
@@ -39,12 +46,12 @@ type Result struct {
 	Url  string `json:"url"`
 }
 
-func New(pm PokemonMap) PokemonService {
+func New(pm PokemonMap) PokemonServiceIfc {
 	if pm == nil {
 		pm = openCSV()
 	}
 
-	return PokemonService{
+	return &PokemonService{
 		data: pm,
 	}
 }

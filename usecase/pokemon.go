@@ -4,20 +4,14 @@ import (
 	"log"
 
 	"github.com/eugenio-garcia/Go-Dispatch-Bootcamp/model"
+	"github.com/eugenio-garcia/Go-Dispatch-Bootcamp/service"
 )
 
-type PokemonService interface {
-	GetAllPokemons() (model.Pokemons, error)
-	GetPokemonById(id int) (*model.Pokemon, error)
-	// GetPokemonByName(name string) (*model.Pokemon, error)
-	LoadPokemonToCSV() (bool, error)
-}
-
 type PokemonUsecase struct {
-	service PokemonService
+	service service.PokemonServiceIfc
 }
 
-func New(s PokemonService) PokemonUsecase {
+func New(s service.PokemonServiceIfc) PokemonUsecase {
 	return PokemonUsecase{
 		service: s,
 	}
